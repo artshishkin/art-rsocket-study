@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import reactor.core.Disposable;
 
 @Slf4j
 @ShellComponent
@@ -14,9 +15,11 @@ public class RSocketShellClient {
     private static final String CLIENT = "Client";
     private static final String REQUEST = "Request";
     private static final String FIRE_AND_FORGET = "Fire and forget";
+    private static final String STREAM = "Stream";
 
     // Add a global class variable for the RSocketRequester
     private final RSocketRequester rsocketRequester;
+    private Disposable disposable;
 
     // Use an Autowired constructor to customize the RSocketRequester and store a reference to it in the global variable
     @Autowired
@@ -42,5 +45,21 @@ public class RSocketShellClient {
                 .data(new Message(CLIENT, FIRE_AND_FORGET))
                 .send()
                 .block();
+    }
+
+    @ShellMethod("Send one request. Stream response will be returned.")
+    public void stream() {
+        log.debug("Request-Stream. Sending one request. Expect stream response");
+        disposable = rsocketRequester.route("stream")
+                .data(new Message(CLIENT, STREAM))
+                .retrieveFlux(Message.class)
+                .subscribe(message -> log.info("Received a message: {}. (Type `s` to stop streaming)", message));
+    }
+
+    @ShellMethod(value = "Stop streaming messages from the server.", key = "s")
+    public void streamStop() {
+        if (disposable != null) {
+            disposable.dispose();
+        }
     }
 }
