@@ -17,4 +17,9 @@ public class RSocketController {
         log.info("Received request-response request: {}", request);
         return new Message(SERVER, RESPONSE);
     }
+
+    @MessageMapping("fire-and-forget")
+    public void fireAndForget(Message message) {
+        log.info("Received fire and forget message: {}", message);
+    }
 }

@@ -13,6 +13,7 @@ public class RSocketShellClient {
 
     private static final String CLIENT = "Client";
     private static final String REQUEST = "Request";
+    private static final String FIRE_AND_FORGET = "Fire and forget";
 
     // Add a global class variable for the RSocketRequester
     private final RSocketRequester rsocketRequester;
@@ -32,5 +33,14 @@ public class RSocketShellClient {
                 .retrieveMono(Message.class)
                 .block();
         log.debug("Response was: {}", message);
+    }
+
+    @ShellMethod("Send one request. No response will be returned.")
+    public void fireAndForget() {
+        log.debug("Sending fire and forget message. Sending one request. Expect no response (check server log)...");
+        rsocketRequester.route("fire-and-forget")
+                .data(new Message(CLIENT, FIRE_AND_FORGET))
+                .send()
+                .block();
     }
 }
