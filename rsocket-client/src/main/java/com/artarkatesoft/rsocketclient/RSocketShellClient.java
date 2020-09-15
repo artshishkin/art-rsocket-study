@@ -7,6 +7,10 @@ import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 @Slf4j
 @ShellComponent
@@ -20,6 +24,7 @@ public class RSocketShellClient {
     // Add a global class variable for the RSocketRequester
     private final RSocketRequester rsocketRequester;
     private Disposable disposable;
+    private Disposable channelDisposable;
 
     // Use an Autowired constructor to customize the RSocketRequester and store a reference to it in the global variable
     @Autowired
@@ -61,5 +66,22 @@ public class RSocketShellClient {
         if (disposable != null) {
             disposable.dispose();
         }
+        if (channelDisposable != null)
+            channelDisposable.dispose();
+    }
+
+    @ShellMethod("Send setting stream. Expecting changeable stream response")
+    public void channel() {
+        log.debug("Channel. Sending request stream of settings. Expect stream response of messages");
+        Mono<Duration> mono1 = Mono.just(Duration.ofSeconds(1));
+        Mono<Duration> mono2 = Mono.just(Duration.ofSeconds(2)).delayElement(Duration.ofSeconds(4));
+        Mono<Duration> mono3 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(10));
+        Flux<Duration> settingsFlux = Flux.concat(mono1, mono2, mono3)
+                .doOnNext(d -> log.info("Sending setting for {}-second interval.", d.getSeconds()));
+        channelDisposable = rsocketRequester.route("channel")
+                .data(settingsFlux)
+                .retrieveFlux(Message.class)
+                .subscribe(message -> log.info("Received a message: {}. (Type `s` to stop streaming)", message));
+
     }
 }

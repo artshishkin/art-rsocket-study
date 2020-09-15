@@ -15,6 +15,7 @@ public class RSocketController {
     static final String SERVER = "Server";
     static final String RESPONSE = "Response";
     static final String STREAM = "Stream";
+    private static final String CHANNEL = "Channel";
 
     @MessageMapping("request-response")
     Message requestResponse(Message request) {
@@ -33,5 +34,12 @@ public class RSocketController {
         return Flux.interval(Duration.ofSeconds(1))
                 .map(i -> new Message(SERVER, STREAM, i))
                 .log();
+    }
+
+    @MessageMapping("channel")
+    public Flux<Message> channel(final Flux<Duration> settings) {
+        return settings
+                .doOnNext(setting -> log.info("Frequency duration is {} seconds", setting.getSeconds()))
+                .switchMap(setting -> Flux.interval(setting).map(index -> new Message(SERVER, CHANNEL, index)));
     }
 }
