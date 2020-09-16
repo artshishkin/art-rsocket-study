@@ -4,6 +4,7 @@ import com.artarkatesoft.rsocketclient.data.Message;
 import io.rsocket.SocketAcceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
@@ -33,12 +34,12 @@ public class RSocketShellClient {
 
     // Use an Autowired constructor to customize the RSocketRequester and store a reference to it in the global variable
     @Autowired
-    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies) {
+    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies, ClientHandler clientHandler) {
 
         String client = UUID.randomUUID().toString();
         log.info("Connecting using client ID {}", client);
 
-        SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
+        SocketAcceptor responder = RSocketMessageHandler.responder(strategies, clientHandler);
 
         this.rsocketRequester = rsocketRequesterBuilder
                 .setupRoute("shell-client")
@@ -108,12 +109,3 @@ public class RSocketShellClient {
     }
 }
 
-@Slf4j
-class ClientHandler {
-
-    @MessageMapping("client-status")
-    public Flux<String> statusUpdate(String status) {
-        log.info("Connection {}", status);
-        return Flux.interval(Duration.ofSeconds(5)).map(index -> String.valueOf(Runtime.getRuntime().freeMemory()));
-    }
-}

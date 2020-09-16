@@ -1,6 +1,8 @@
 package com.artarkatesoft.rsocketserver.controllers;
 
 import com.artarkatesoft.rsocketserver.data.Message;
+import com.artarkatesoft.rsocketserver.services.ClientService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -15,9 +17,10 @@ import java.util.List;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class RSocketController {
 
-    private final List<RSocketRequester> CLIENTS = new ArrayList<>();
+    private final ClientService clientService;
 
     static final String SERVER = "Server";
     static final String RESPONSE = "Response";
@@ -57,21 +60,15 @@ public class RSocketController {
                 .onClose() // (1)
                 .doFirst(() -> {
                     log.info("Client: {} CONNECTED.", client);
-                    CLIENTS.add(requester); // (2)
+                    clientService.addClient(requester); // (2)
                 })
                 .doOnError(error -> {
                     log.warn("Channel to client {} CLOSED", client); // (3)
                 })
                 .doFinally(consumer -> {
-                    CLIENTS.remove(requester);
+                    clientService.removeClient(requester);
                     log.info("Client {} DISCONNECTED", client); // (4)
                 })
-                .subscribe();
-
-        requester.route("client-status")
-                .data("OPEN")
-                .retrieveFlux(String.class)
-                .doOnNext(s -> log.info("Client: {} Free Memory: {}.",client,s))
                 .subscribe();
     }
 
