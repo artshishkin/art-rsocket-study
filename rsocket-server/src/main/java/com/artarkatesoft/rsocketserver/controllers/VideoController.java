@@ -19,10 +19,11 @@ public class VideoController {
 
 //    public static final long ChunkSize = 1000000L;
 
-    @GetMapping(value = "{name}/full", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "{name}/full")
     public Mono<ResponseEntity> getFullVideo(@PathVariable String name) throws IOException {
         return clientService.getVideoFileFromClient(name)
                 .map(videoFile -> ResponseEntity.ok()
+                        .contentType(MediaTypeFactory.getMediaType(videoFile.getName()).orElse(MediaType.APPLICATION_OCTET_STREAM))
                         .body(videoFile.getContent()));
     }
 
