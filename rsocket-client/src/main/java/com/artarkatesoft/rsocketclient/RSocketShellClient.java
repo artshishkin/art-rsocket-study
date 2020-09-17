@@ -4,8 +4,7 @@ import com.artarkatesoft.rsocketclient.data.Message;
 import io.rsocket.SocketAcceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
@@ -22,6 +21,7 @@ import java.util.UUID;
 @ShellComponent
 public class RSocketShellClient {
 
+
     private static final String CLIENT = "Client";
     private static final String REQUEST = "Request";
     private static final String FIRE_AND_FORGET = "Fire and forget";
@@ -34,7 +34,9 @@ public class RSocketShellClient {
 
     // Use an Autowired constructor to customize the RSocketRequester and store a reference to it in the global variable
     @Autowired
-    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies, ClientHandler clientHandler) {
+    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies, ClientHandler clientHandler,
+                              @Value("${app.server.url}") String serverUrl,
+                              @Value("${app.server.rsocket.port}") Integer serverPort) {
 
         String client = UUID.randomUUID().toString();
         log.info("Connecting using client ID {}", client);
@@ -46,7 +48,7 @@ public class RSocketShellClient {
                 .setupData(client)
                 .rsocketStrategies(strategies)
                 .rsocketConnector(connector -> connector.acceptor(responder))
-                .connectTcp("localhost", 7000)
+                .connectTcp(serverUrl, serverPort)
                 .block();
 
         this.rsocketRequester.rsocket()
