@@ -8,6 +8,6 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 public class MessageConverterConfig implements WebFluxConfigurer {
     @Override
     public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-        configurer.customCodecs().register(new ResourceRegionMessageWriter());
+        configurer.customCodecs().register(new VideoFileRegionMessageWriter());
     }
 }
