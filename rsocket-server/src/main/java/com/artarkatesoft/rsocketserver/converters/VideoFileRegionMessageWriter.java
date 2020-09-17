@@ -28,7 +28,6 @@ public class VideoFileRegionMessageWriter implements HttpMessageWriter<VideoFile
 
     private List<MediaType> mediaTypes = MediaType.asMediaTypes(Arrays.asList(MimeType.valueOf("video/mp4")));
 
-
     @Override
     public List<MediaType> getWritableMediaTypes() {
         return mediaTypes;
@@ -89,80 +88,6 @@ public class VideoFileRegionMessageWriter implements HttpMessageWriter<VideoFile
                         .orElse(MediaType.APPLICATION_OCTET_STREAM);
     }
 
-
-    //    private static final ResolvableType REGION_TYPE = ResolvableType.forClass(ResourceRegion.class);
-//
-//    private ResourceRegionEncoder regionEncoder = new ResourceRegionEncoder();
-//
-//    private List<MediaType> mediaTypes = MediaType.asMediaTypes(regionEncoder.getEncodableMimeTypes());
-//
-//
-//    @Override
-//    public List<MediaType> getWritableMediaTypes() {
-//        return mediaTypes;
-//    }
-//
-//    @Override
-//    public boolean canWrite(ResolvableType resolvableType, MediaType mediaType) {
-//        return regionEncoder.canEncode(resolvableType, mediaType);
-//    }
-//
-//    @Override
-//    public Mono<Void> write(Publisher<? extends ResourceRegion> publisher,
-//                            ResolvableType resolvableType,
-//                            MediaType mediaType,
-//                            ReactiveHttpOutputMessage reactiveHttpOutputMessage,
-//                            Map<String, Object> map) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Mono<Void> write(Publisher<? extends ResourceRegion> inputStream,
-//                            ResolvableType actualType,
-//                            ResolvableType elementType,
-//                            MediaType mediaType,
-//                            ServerHttpRequest request,
-//                            ServerHttpResponse response,
-//                            Map<String, Object> hints) {
-//        HttpHeaders headers = response.getHeaders();
-//        headers.set(HttpHeaders.ACCEPT_RANGES, "bytes");
-//
-//        return Mono.from(inputStream).flatMap(
-//                resourceRegion -> {
-//                    response.setStatusCode(HttpStatus.PARTIAL_CONTENT);
-//                    MediaType resourceMediaType = getResourceMediaType(mediaType, resourceRegion.getResource());
-//                    headers.setContentType(resourceMediaType);
-//
-//                    long contentLength = 0L;
-//                    try {
-//                        contentLength = resourceRegion.getResource().contentLength();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    val start = resourceRegion.getPosition();
-//                    val end = Math.min(start + resourceRegion.getCount() - 1, contentLength - 1);
-//                    headers.add("Content-Range", "bytes " + start + '-' + end + '/' + contentLength);
-//                    headers.setContentLength(end - start + 1);
-//
-//                    return zeroCopy(resourceRegion.getResource(), resourceRegion, response)
-//                            .orElseGet(() -> {
-//                                val input = Mono.just(resourceRegion);
-//                                val body = this.regionEncoder.encode(input, response.bufferFactory(), REGION_TYPE, resourceMediaType, new HashMap<>());
-//                                response.writeWith(body);
-//                                return Mono.empty();
-//                            });
-//                }
-//        );
-//
-//    }
-//
-//    private MediaType getResourceMediaType(MediaType mediaType, Resource resource) {
-//        return (mediaType != null && mediaType.isConcrete() && mediaType != MediaType.APPLICATION_OCTET_STREAM) ?
-//                mediaType :
-//                MediaTypeFactory.getMediaType(resource)
-//                        .orElse(MediaType.APPLICATION_OCTET_STREAM);
-//    }
-//
     private Optional<Mono<Void>> zeroCopy(VideoFileRegion videoFileRegion,
                                           ReactiveHttpOutputMessage message) {
         if (message instanceof ZeroCopyHttpOutputMessage) {
