@@ -33,6 +33,7 @@ public class RSocketShellClient {
     private Disposable disposable;
     private Disposable channelDisposable;
 
+
     // Use an Autowired constructor to customize the RSocketRequester and store a reference to it in the global variable
     @Autowired
     public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies, ClientHandler clientHandler,
@@ -51,6 +52,7 @@ public class RSocketShellClient {
                 .rsocketConnector(connector -> connector.acceptor(responder))
 //                .connectTcp(serverUrl, serverPort)
                 .connectWebSocket(URI.create("ws://localhost:8080/ws"))
+//                .connectWebSocket(URI.create("ws://art-rsocket-server.herokuapp.com/ws"))
                 .block();
 
         this.rsocketRequester.rsocket()
