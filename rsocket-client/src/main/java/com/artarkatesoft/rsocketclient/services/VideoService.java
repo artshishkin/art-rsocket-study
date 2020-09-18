@@ -19,7 +19,8 @@ import java.nio.file.Paths;
 @Service
 public class VideoService {
 
-    public static final long CHUNK_SIZE = 1000000L;
+    @Value("${app.chunk-size:60000}")
+    public long CHUNK_SIZE;
     @Value("${videoLocation}")
     private String videoLocation;
 

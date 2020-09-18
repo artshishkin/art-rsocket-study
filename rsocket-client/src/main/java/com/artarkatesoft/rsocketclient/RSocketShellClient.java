@@ -14,6 +14,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -48,13 +49,14 @@ public class RSocketShellClient {
                 .setupData(client)
                 .rsocketStrategies(strategies)
                 .rsocketConnector(connector -> connector.acceptor(responder))
-                .connectTcp(serverUrl, serverPort)
+//                .connectTcp(serverUrl, serverPort)
+                .connectWebSocket(URI.create("ws://localhost:8080/ws"))
                 .block();
 
         this.rsocketRequester.rsocket()
                 .onClose()
                 .doOnError(error -> log.warn("Connection CLOSED"))
-                .doFinally(consumer -> log.info("Client DISCONNECTED"))
+                .doFinally(consumer -> log.info("I'm DISCONNECTED from server"))
                 .subscribe();
     }
 

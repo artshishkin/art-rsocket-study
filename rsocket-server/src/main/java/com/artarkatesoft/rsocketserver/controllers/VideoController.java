@@ -4,6 +4,7 @@ import com.artarkatesoft.rsocketserver.data.VideoFileRegion;
 import com.artarkatesoft.rsocketserver.data.VideoFileRegionRequest;
 import com.artarkatesoft.rsocketserver.services.ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VideoController {
 
-    public static final long CHUNK_SIZE = 1000000L;
+    @Value("${app.chunk-size:60000}")
+    public long CHUNK_SIZE;
     private final ClientService clientService;
 
     @GetMapping(value = "{name}/full")
